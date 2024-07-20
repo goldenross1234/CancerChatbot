@@ -1,9 +1,13 @@
 import React from 'react';
 import './CustomButton.css';
 
-const CustomButton = ({ icon, text }) => {
+const CustomButton = ({ text, onClick }) => {
+  const handleClick = () => {
+    onClick(text); // Passes the button text to the onClick function provided by the parent
+  };
+
   return (
-    <button className="custom-button">
+    <button className="custom-button" onClick={handleClick}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="24"

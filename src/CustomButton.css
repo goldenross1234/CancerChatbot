@@ -37,8 +37,9 @@
     text-overflow: ellipsis;
     white-space: pre-wrap;
     font-size: 18px; /* Larger text size */
-    color: #ed6262; /* Text color */
-    color: var(--gray-600);
+    color: #f7f8f0; /* Text color */
+    /* color: var(--gray-600); */
+    /* color: var(--button-text-color); Use the variable */
     line-height: 1.5;
     word-wrap: break-word;
   }
@@ -52,9 +53,13 @@
   }
   
   .chat-container {
-    background-color: rgb(23, 17, 17); /* Set the background color to white */
-    padding: 1rem; /* Add padding for better spacing */
-    border-radius: 0.5rem; /* Add border-radius for rounded corners */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a slight shadow */
+    background-color: #333;
+    padding: 40px; /* Increase padding for more space inside */
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    width: 80%; /* Adjust width as needed */
+    max-width: 1000px; /* Set a maximum width if necessary */
+    margin: auto; /* Center the container horizontally */
   }
+  
   

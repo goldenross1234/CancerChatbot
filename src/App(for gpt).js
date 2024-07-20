@@ -30,7 +30,7 @@ function App() {
       // Call the AI model for the response
       try {
         const response = await callAIModel(message);
-        const botResponse = response.data[0].generated_text || 'No response';
+        const botResponse = response.data.choices[0].text.trim();
         setConversations((prevConversations) => {
           const newConversations = [...prevConversations];
           newConversations[newConversations.length - 1].bot = botResponse;
@@ -96,18 +96,20 @@ function App() {
     setSelectedQuestions(questions);
   };
 
-  // Function to call the Hugging Face API
   const callAIModel = async (userMessage) => {
-    const apiKey = process.env.REACT_APP_HUGGING_FACE_API_KEY; // Use the environment variable
-    const apiEndpoint = 'https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct'; // Use the specified model endpoint
+    const apiKey = 'YOUR_OPENAI_API_KEY'; // Replace with your OpenAI API key
+    const apiEndpoint = 'https://api.openai.com/v1/engines/davinci-codex/completions'; // Replace with the correct API endpoint if needed
 
     const response = await axios.post(
       apiEndpoint,
       {
-        inputs: userMessage,
+        prompt: userMessage,
+        max_tokens: 150,
+        temperature: 0.7,
       },
       {
         headers: {
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${apiKey}`,
         },
       }
@@ -169,17 +171,14 @@ function App() {
           <div className="chat-input">
             <input
               type="text"
+              placeholder="Start typing here..."
+              className="input-field"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Type your message here..."
             />
-            <button onClick={() => handleSendClick()} className="send-button">
-              Send
-            </button>
-            <button onClick={handleClearClick} className="clear-button">
-              Clear
-            </button>
+            <button className="send-button" onClick={() => handleSendClick()}>Send</button>
+            <button className="clear-button" onClick={handleClearClick}>Clear All</button>
           </div>
         </div>
       </header>

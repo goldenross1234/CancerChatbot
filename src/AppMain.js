@@ -3,7 +3,6 @@ import './App.css';
 import logo from './AI.png';
 import AdminPanel from './AdminPanel';
 import { FaPlus, FaTrash } from 'react-icons/fa';
-import axios from 'axios';
 
 function App() {
   const [inputValue, setInputValue] = useState('');
@@ -19,32 +18,12 @@ function App() {
     handleSendClick(text); // Automatically send when selecting a sample question
   };
 
-  const handleSendClick = async (text) => {
+  const handleSendClick = (text) => {
     const message = text || inputValue;
     if (message.trim() !== '') {
-      setConversations([...conversations, { user: message, bot: 'Thinking...' }]);
+      setConversations([...conversations, { user: message, bot: `Response to: ${message}` }]);
       setQueryHistory([...queryHistory, message]);
       setInputValue('');
-      scrollToBottom();
-
-      // Call the AI model for the response
-      try {
-        const response = await callAIModel(message);
-        const botResponse = response.data[0].generated_text || 'No response';
-        setConversations((prevConversations) => {
-          const newConversations = [...prevConversations];
-          newConversations[newConversations.length - 1].bot = botResponse;
-          return newConversations;
-        });
-      } catch (error) {
-        console.error('Error calling AI model:', error);
-        setConversations((prevConversations) => {
-          const newConversations = [...prevConversations];
-          newConversations[newConversations.length - 1].bot = 'Sorry, something went wrong. Please try again.';
-          return newConversations;
-        });
-      }
-
       scrollToBottom(); // Scroll to the latest message after adding it
     }
   };
@@ -94,26 +73,6 @@ function App() {
 
   const handleQuestionSelect = (questions) => {
     setSelectedQuestions(questions);
-  };
-
-  // Function to call the Hugging Face API
-  const callAIModel = async (userMessage) => {
-    const apiKey = process.env.REACT_APP_HUGGING_FACE_API_KEY; // Use the environment variable
-    const apiEndpoint = 'https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct'; // Use the specified model endpoint
-
-    const response = await axios.post(
-      apiEndpoint,
-      {
-        inputs: userMessage,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-        },
-      }
-    );
-
-    return response;
   };
 
   return (
@@ -169,17 +128,14 @@ function App() {
           <div className="chat-input">
             <input
               type="text"
+              placeholder="Start typing here..."
+              className="input-field"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Type your message here..."
             />
-            <button onClick={() => handleSendClick()} className="send-button">
-              Send
-            </button>
-            <button onClick={handleClearClick} className="clear-button">
-              Clear
-            </button>
+            <button className="send-button" onClick={() => handleSendClick()}>Send</button>
+            <button className="clear-button" onClick={handleClearClick}>Clear All</button>
           </div>
         </div>
       </header>
