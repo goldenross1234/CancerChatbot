@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import './App.css';
-import logo from './AI.png';
+import './assets/App.css';
+import logo from './assets/AI.png';
 import AdminPanel from './AdminPanel';
 import { FaPlus, FaTrash } from 'react-icons/fa';
 import axios from 'axios';

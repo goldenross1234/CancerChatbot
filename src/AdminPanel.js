@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './AdminPanel.css';
+import './css/AdminPanel.css';
 
 const AdminPanel = ({ onClose, onQuestionSelect }) => {
   const [questions, setQuestions] = useState(() => {
