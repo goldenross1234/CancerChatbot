@@ -13,6 +13,24 @@ function App() {
   const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
   const [selectedQuestions, setSelectedQuestions] = useState([]);
   const [queryHistory, setQueryHistory] = useState([]);
+  const [apiKey, setApiKey] = useState('');
+  const [apiEndpoint, setApiEndpoint] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(true);
+
+  useEffect(() => {
+    if (apiKey && apiEndpoint) {
+      setIsModalOpen(false);
+    }
+  }, [apiKey, apiEndpoint]);
+
+  const handleFormSubmit = (event) => {
+    event.preventDefault();
+    const key = event.target.apiKey.value;
+    const endpoint = event.target.apiEndpoint.value;
+    setApiKey(key);
+    setApiEndpoint(endpoint);
+    setIsModalOpen(false);
+  };
 
   const handleButtonClick = (text) => {
     setInputValue(text);
@@ -27,7 +45,6 @@ function App() {
       setInputValue('');
       scrollToBottom();
 
-      // Call the AI model for the response
       try {
         const response = await callAIModel(message);
         const botResponse = response.data[0].generated_text || 'No response';
@@ -73,7 +90,7 @@ function App() {
     if (!isScrolledUp) {
       scrollToBottom();
     }
-  }, [conversations, isScrolledUp]); // Include isScrolledUp in the dependency array
+  }, [conversations, isScrolledUp]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -96,11 +113,7 @@ function App() {
     setSelectedQuestions(questions);
   };
 
-  // Function to call the Hugging Face API
   const callAIModel = async (userMessage) => {
-    const apiKey = process.env.REACT_APP_HUGGING_FACE_API_KEY; // Use the environment variable
-    const apiEndpoint = 'https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct'; // Use the specified model endpoint
-
     const response = await axios.post(
       apiEndpoint,
       {
@@ -118,71 +131,93 @@ function App() {
 
   return (
     <div className="App">
-      <header className="App-header">
-        <div className="sidebar">
-          <div className="sidebar-content">
-            <h2>Query History</h2>
-            <ul className="query-history">
-              {queryHistory.map((query, index) => (
-                <li key={index}>
-                  {query}
-                  <button className="delete-button" onClick={() => handleDeleteQuery(index)}>
-                    <FaTrash />
-                  </button>
-                </li>
-              ))}
-            </ul>
+      {isModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h2>Configure API</h2>
+            <form onSubmit={handleFormSubmit}>
+              <label>
+                <span>API Key:</span>
+                <input type="text" name="apiKey" required />
+              </label>
+              <label>
+                <span>API Endpoint:</span>
+                <input type="text" name="apiEndpoint" required />
+              </label>
+              <button type="submit">Submit</button>
+            </form>
           </div>
         </div>
+      )}
 
-        <div className="chat-container">
-          <button className="admin-panel-button" onClick={toggleAdminPanel}>
-            <FaPlus />
-          </button>
-          {isAdminPanelOpen && <AdminPanel onClose={toggleAdminPanel} onQuestionSelect={handleQuestionSelect} />}
-          <div className="logo">
-            <img src={logo} alt="Logo" className="logo-image" />
-          </div>
-          <div className="sample-questions">
-            {selectedQuestions.map((question, index) => (
-              <button key={index} className="question-button" onClick={() => handleButtonClick(question)}>
-                {question}
-              </button>
-            ))}
-          </div>
-          {conversations.length > 0 && (
-            <div className="chat-conversations" onScroll={handleScroll}>
-              {conversations.map((conversation, index) => (
-                <div key={index} className="chat-pair">
-                  <div className="chat-message user">{conversation.user}</div>
-                  <div className="chat-message bot">{conversation.bot}</div>
-                </div>
-              ))}
-              <div ref={messagesEndRef}></div>
+      {!isModalOpen && (
+        <header className="App-header">
+          <div className="sidebar">
+            <div className="sidebar-content">
+              <h2>Query History</h2>
+              <ul className="query-history">
+                {queryHistory.map((query, index) => (
+                  <li key={index}>
+                    {query}
+                    <button className="delete-button" onClick={() => handleDeleteQuery(index)}>
+                      <FaTrash />
+                    </button>
+                  </li>
+                ))}
+              </ul>
             </div>
-          )}
-          {isScrolledUp && (
-            <button className="scroll-down-button" onClick={scrollToBottom}>
-              ↓
-            </button>
-          )}
-          <div className="chat-input">
-            <input
-              type="text"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Type your message here..."
-            />
-            <button onClick={() => handleSendClick()} className="send-button">
-              Send
-            </button>
-            <button onClick={handleClearClick} className="clear-button">
-              Clear
-            </button>
           </div>
-        </div>
-      </header>
+
+          <div className="chat-container">
+            <button className="admin-panel-button" onClick={toggleAdminPanel}>
+              <FaPlus />
+            </button>
+            {isAdminPanelOpen && <AdminPanel onClose={toggleAdminPanel} onQuestionSelect={handleQuestionSelect} />}
+            <div className="logo">
+              <img src={logo} alt="Logo" className="logo-image" />
+            </div>
+            <div className="sample-questions">
+              {selectedQuestions.map((question, index) => (
+                <button key={index} className="question-button" onClick={() => handleButtonClick(question)}>
+                  {question}
+                </button>
+              ))}
+            </div>
+            {conversations.length > 0 && (
+              <div className="chat-conversations" onScroll={handleScroll}>
+                {conversations.map((conversation, index) => (
+                  <div key={index} className="chat-pair">
+                    <div className="chat-message user">{conversation.user}</div>
+                    <div className="chat-message bot">{conversation.bot}</div>
+                  </div>
+                ))}
+                <div ref={messagesEndRef}></div>
+              </div>
+            )}
+            {isScrolledUp && (
+              <button className="scroll-down-button" onClick={scrollToBottom}>
+                ↓
+              </button>
+            )}
+            <div className="chat-input">
+              <input
+                type="text"
+                className="input-field"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Type your message here..."
+              />
+              <button onClick={() => handleSendClick()} className="send-button">
+                Send
+              </button>
+              <button onClick={handleClearClick} className="clear-button">
+                Clear
+              </button>
+            </div>
+          </div>
+        </header>
+      )}
     </div>
   );
 }
